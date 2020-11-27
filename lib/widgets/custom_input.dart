@@ -57,6 +57,7 @@ class _CustomInputState extends State<CustomInput> {
               focusedBorder: InputBorder.none,
               border: InputBorder.none,
               hintText: this.widget.placeholder,
+              hintStyle: TextStyle(color: Colors.black54),
             ),
           )),
       Visibility(
