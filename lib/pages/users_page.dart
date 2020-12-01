@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:chat_app/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import 'package:chat_app/model/user.dart';
@@ -16,19 +18,22 @@ class _UsuariosPageState extends State<UsuariosPage> {
       RefreshController(initialRefresh: false);
 
   final usuarios = [
-    Usuario(uid: '1', nombre: 'Nikola', email: 'test1@test.com', onLine: true),
-    Usuario(uid: '2', nombre: 'Tony', email: 'test2@test.com', onLine: true),
-    Usuario(uid: '3', nombre: 'Alan', email: 'test3@test.com', onLine: false),
-    Usuario(uid: '4', nombre: 'Gregor', email: 'test4@test.com', onLine: true),
+    Usuario(uid: '1', nombre: 'Nikola', email: 'test1@test.com', online: true),
+    Usuario(uid: '2', nombre: 'Tony', email: 'test2@test.com', online: true),
+    Usuario(uid: '3', nombre: 'Alan', email: 'test3@test.com', online: false),
+    Usuario(uid: '4', nombre: 'Gregor', email: 'test4@test.com', online: true),
   ];
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
+
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
           elevation: 2,
           title: Text(
-            'Usuario',
+            usuario.nombre,
             style: GoogleFonts.varelaRound(
               fontWeight: FontWeight.w600,
             ),
@@ -37,7 +42,10 @@ class _UsuariosPageState extends State<UsuariosPage> {
           leading: IconButton(
               alignment: AlignmentDirectional.center,
               icon: Icon(CupertinoIcons.arrow_left_circle_fill),
-              onPressed: () {}),
+              onPressed: () {
+                AuthService.deleteToken();
+                Navigator.pushReplacementNamed(context, 'login');
+              }),
           actions: [
             Container(
               margin: EdgeInsets.only(right: 15),
@@ -81,7 +89,7 @@ class _UsuariosPageState extends State<UsuariosPage> {
       ),
       trailing: Icon(
         CupertinoIcons.chat_bubble_2_fill,
-        color: usuario.onLine ? Color.fromRGBO(38, 191, 115, 1) : Colors.red,
+        color: usuario.online ? Color.fromRGBO(38, 191, 115, 1) : Colors.red,
       ),
     );
   }
