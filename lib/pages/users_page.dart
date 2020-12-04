@@ -1,5 +1,8 @@
 import 'dart:ui';
 import 'package:chat_app/services/auth_service.dart';
+import 'package:chat_app/services/chat_service.dart';
+import 'package:chat_app/services/socket_service.dart';
+import 'package:chat_app/services/users_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -14,19 +17,31 @@ class UsuariosPage extends StatefulWidget {
 }
 
 class _UsuariosPageState extends State<UsuariosPage> {
+  final usuarioService = new UsuariosService();
+
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
-  final usuarios = [
+  List<Usuario> usuarios = [];
+
+  /* final usuarios = [
     Usuario(uid: '1', nombre: 'Nikola', email: 'test1@test.com', online: true),
     Usuario(uid: '2', nombre: 'Tony', email: 'test2@test.com', online: true),
     Usuario(uid: '3', nombre: 'Alan', email: 'test3@test.com', online: false),
     Usuario(uid: '4', nombre: 'Gregor', email: 'test4@test.com', online: true),
-  ];
+  ]; */
+
+  @override
+  void initState() {
+    this._cargarUsuarios();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final usuario = authService.usuario;
+    final socketService = Provider.of<SocketService>(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -43,13 +58,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
               alignment: AlignmentDirectional.center,
               icon: Icon(CupertinoIcons.arrow_left_circle_fill),
               onPressed: () {
+                socketService.disconnect();
                 AuthService.deleteToken();
                 Navigator.pushReplacementNamed(context, 'login');
               }),
           actions: [
             Container(
               margin: EdgeInsets.only(right: 15),
-              child: Icon(CupertinoIcons.check_mark_circled_solid),
+              child: (socketService.serverStatus == ServerStatus.Online)
+                  ? Icon(CupertinoIcons.check_mark_circled_solid)
+                  : Icon(
+                      CupertinoIcons.multiply_circle_fill,
+                    ),
             )
           ],
         ),
@@ -91,11 +111,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
         CupertinoIcons.chat_bubble_2_fill,
         color: usuario.online ? Color.fromRGBO(38, 191, 115, 1) : Colors.red,
       ),
+      onTap: () {
+        final chatService = Provider.of<ChatService>(context, listen: false);
+        chatService.usuarioPara = usuario;
+        Navigator.pushNamed(context, 'chat');
+      },
     );
   }
 
   void _cargarUsuarios() async {
-    await Future.delayed(Duration(milliseconds: 1500));
+    this.usuarios = await usuarioService.getUsuarios();
+    setState(() {});
+    //await Future.delayed(Duration(milliseconds: 1500));
     // if failed,use refreshFailed()
     _refreshController.refreshCompleted();
   }

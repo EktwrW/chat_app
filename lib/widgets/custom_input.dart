@@ -63,7 +63,8 @@ class _CustomInputState extends State<CustomInput> {
       Visibility(
         visible: this.widget.showHideIcon,
         child: Container(
-          margin: EdgeInsets.only(left: 285),
+          margin:
+              EdgeInsets.only(left: MediaQuery.of(context).size.width - 125),
           child: TextButton.icon(
             onPressed: () {
               if (widget.isPassword == true) {
