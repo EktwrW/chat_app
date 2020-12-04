@@ -59,8 +59,8 @@ class _UsuariosPageState extends State<UsuariosPage> {
               icon: Icon(CupertinoIcons.arrow_left_circle_fill),
               onPressed: () {
                 socketService.disconnect();
-                AuthService.deleteToken();
                 Navigator.pushReplacementNamed(context, 'login');
+                AuthService.deleteToken();
               }),
           actions: [
             Container(
